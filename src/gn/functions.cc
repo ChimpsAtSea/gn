@@ -1370,6 +1370,60 @@ Value RunStringSplit(Scope* scope,
   return result;
 }
 
+// string_transform ------------------------------------------------------------
+
+const char kStringTransform[] = "string_transform";
+const char kStringTransform_HelpShort[] =
+    "string_transform: Transform string into a uppercase or lowercase string.";
+const char kStringTransform_Help[] =
+    R"(string_transform: Transform string into a uppercase or lowercase string.
+
+  result = string_transform(str, transform)
+
+  Transform string into an uppercase or lowercase string.
+
+  The transform argument should be either "upper" or "lower".
+
+Examples:
+
+  string_transform("Hello World", "lower") --> "hello world"
+  string_transform("Hello World", "upper") --> "HELLO WORLD"
+)";
+
+Value RunStringTransform(Scope* scope,
+                     const FunctionCallNode* function,
+                     const std::vector<Value>& args,
+                     Err* err) {
+  // Check usage: argument count.
+  if (args.size() != 2) {
+    *err = Err(function, "Wrong number of arguments to string_transform().",
+               "Usage: string_transform(str, transform)");
+    return Value();
+  }
+
+  // Check usage: str is a string.
+  if (!args[0].VerifyTypeIs(Value::STRING, err)) {
+    return Value();
+  }
+  const std::string str = args[0].string_value();
+
+  // Check usage: str is a string.
+  if (!args[1].VerifyTypeIs(Value::STRING, err)) {
+    return Value();
+  }
+  const std::string transform = args[1].string_value();
+
+  std::string val = str;
+  if (transform == "upper") {
+    std::transform(val.begin(), val.end(), val.begin(), std::toupper);
+  }
+  else if (transform == "lower") {
+    std::transform(val.begin(), val.end(), val.begin(), std::tolower);
+  }
+  
+  return Value(function, std::move(val));
+}
+
 // -----------------------------------------------------------------------------
 
 FunctionInfo::FunctionInfo()
@@ -1489,6 +1543,8 @@ struct FunctionInfoInitializer {
     INSERT_FUNCTION(Tool, false)
     INSERT_FUNCTION(Toolchain, false)
     INSERT_FUNCTION(WriteFile, false)
+
+    INSERT_FUNCTION(StringTransform, false)
 
 #undef INSERT_FUNCTION
   }
