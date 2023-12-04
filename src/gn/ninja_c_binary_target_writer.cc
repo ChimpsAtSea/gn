@@ -352,8 +352,14 @@ void NinjaCBinaryTargetWriter::WriteGCCPCHCommand(
             std::back_inserter(extra_deps));
 
   // Build line to compile the file.
-  WriteCompilerBuildLine({target_->config_values().precompiled_source()},
-                         extra_deps, order_only_deps, tool_name, outputs);
+  std::vector<SourceFile> precompiled_sources;
+  const SourceFile& precompiled_source =
+      target_->config_values().precompiled_source();
+  if (!precompiled_source.is_null()) {
+    precompiled_sources.push_back(precompiled_source);
+  }
+  WriteCompilerBuildLine(precompiled_sources, extra_deps, order_only_deps,
+                         tool_name, outputs);
 
   // This build line needs a custom language-specific flags value. Rule-specific
   // variables are just indented underneath the rule line.
@@ -408,8 +414,14 @@ void NinjaCBinaryTargetWriter::WriteWindowsPCHCommand(
             std::back_inserter(extra_deps));
 
   // Build line to compile the file.
-  WriteCompilerBuildLine({target_->config_values().precompiled_source()},
-                         extra_deps, order_only_deps, tool_name, outputs);
+  std::vector<SourceFile> precompiled_sources;
+  const SourceFile& precompiled_source =
+      target_->config_values().precompiled_source();
+  if (!precompiled_source.is_null()) {
+    precompiled_sources.push_back(precompiled_source);
+  }
+  WriteCompilerBuildLine(precompiled_sources, extra_deps, order_only_deps,
+                         tool_name, outputs);
 
   // This build line needs a custom language-specific flags value. Rule-specific
   // variables are just indented underneath the rule line.
