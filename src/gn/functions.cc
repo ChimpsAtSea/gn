@@ -1424,6 +1424,43 @@ Value RunStringTransform(Scope* scope,
   return Value(function, std::move(val));
 }
 
+// string_length ------------------------------------------------------------
+
+const char kStringLength[] = "string_length";
+const char kStringLength_HelpShort[] =
+    "string_length: Get the length of a string";
+const char kStringLength_Help[] =
+    R"(string_length: Get the length of a string.
+
+  result = string_length(str)
+
+Examples:
+
+  string_length("Hello World") --> 11
+)";
+
+Value RunStringLength(Scope* scope,
+                     const FunctionCallNode* function,
+                     const std::vector<Value>& args,
+                     Err* err) {
+  // Check usage: argument count.
+  if (args.size() != 1) {
+    *err = Err(function, "Wrong number of arguments to string_length().",
+               "Usage: string_length(str)");
+    return Value();
+  }
+
+  // Check usage: str is a string.
+  if (!args[0].VerifyTypeIs(Value::STRING, err)) {
+    return Value();
+  }
+  const std::string str = args[0].string_value();
+
+  size_t val = str.size();
+  
+  return Value(function, static_cast<int64_t>(val));
+}
+
 // -----------------------------------------------------------------------------
 
 FunctionInfo::FunctionInfo()
@@ -1545,6 +1582,7 @@ struct FunctionInfoInitializer {
     INSERT_FUNCTION(WriteFile, false)
 
     INSERT_FUNCTION(StringTransform, false)
+    INSERT_FUNCTION(StringLength, false)
 
 #undef INSERT_FUNCTION
   }
